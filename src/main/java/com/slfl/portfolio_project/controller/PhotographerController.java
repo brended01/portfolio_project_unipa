@@ -2,9 +2,13 @@ package com.slfl.portfolio_project.controller;
 
 import com.slfl.portfolio_project.misc.errors.StorageFileNotFoundException;
 import com.slfl.portfolio_project.model.Album;
+import com.slfl.portfolio_project.model.ImageFile;
 import com.slfl.portfolio_project.model.requests.AlbumCreateDTO;
 import com.slfl.portfolio_project.model.requests.PictureCreateDTO;
 import com.slfl.portfolio_project.model.response_factory.CustomResponse;
+import com.slfl.portfolio_project.model.validation_image.FormatHandler;
+import com.slfl.portfolio_project.model.validation_image.SizeHandler;
+import com.slfl.portfolio_project.repository.ImageHandler;
 import com.slfl.portfolio_project.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -57,13 +61,22 @@ public class PhotographerController {
 
     //TODO: to be tested
     @PostMapping("/picture/upload/{pictureId}")
-    public String handlePictureUpload(@RequestParam("file") MultipartFile file,
+    public String handlePictureUpload(@RequestParam("file") ImageFile file,
                                       RedirectAttributes redirectAttributes, @RequestHeader(HttpHeaders.AUTHORIZATION) String token, @PathVariable Integer pictureId) {
         try {
+            ImageHandler formatHandler = new FormatHandler();
+            ImageHandler sizeHandler = new SizeHandler();
+            formatHandler.setNextHandler(sizeHandler);
+
             // needed to get userDir/albumTitle structure for the directory
             String userDir = userService.getUserFromToken(token).getUsername();
             Album album = albumService.getAlbumIdByPictureId(pictureId);
 
+
+            if(!formatHandler.handleImage(file)){
+                redirectAttributes.addFlashAttribute("message",
+                        "Error while uploading " + file.getOriginalFilename() + "!" + "\nError: check whether the format and dimensions comply with the guidelines " );
+            }
             // Store inside that directory
             storageService.store(file, userDir + album.getTitle());
             String path = storageService.load(file.getOriginalFilename()).toUri().getPath();

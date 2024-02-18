@@ -38,6 +38,8 @@ public class PictureService {
     public CustomResponse createPicture(PictureCreateDTO pictureCreateDTO, Integer albumId) {
         try {
             Optional<Picture> retrievedPicture = pictureRepository.findPictureByTitle(pictureCreateDTO.getTitle());
+
+
             if (retrievedPicture.isPresent()) {
                 return this.responseFactory.createCustomError("404", "Immagine già presente.");
             }

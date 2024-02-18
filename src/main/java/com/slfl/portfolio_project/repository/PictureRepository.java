@@ -17,3 +17,4 @@ public interface PictureRepository extends JpaRepository<Picture, Integer> {
     @Query("SELECT p FROM Picture p ORDER BY SIZE(p.usersWhoLikes) DESC")
     List<Picture> findMostLikedPictures();
 }
+
