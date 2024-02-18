@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -117,8 +118,8 @@ public class PictureService {
             if (foundAlbum.isEmpty()) {
                 return this.responseFactory.createCustomError("404", "Album non trovato in loadFileImageByAlbum");
             }
-            Stream<Path> images = imageFileService.loadImagesOfAlbum(foundAlbum.get());
-            return new LoadedImageResponse("200", "Immagini scaricate con successo.", images);
+            List<Picture> pictures = pictureRepository.findPictureByAlbum_AlbumId(albumId);
+            return new LoadedImageResponse("200", "Immagini scaricate con successo.", pictures);
         } catch (Exception e) {
             return this.responseFactory.createCustomError("404", e.getMessage());
         }

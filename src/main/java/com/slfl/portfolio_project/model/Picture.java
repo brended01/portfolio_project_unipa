@@ -46,6 +46,7 @@ public class Picture {
     @ManyToMany(mappedBy = "likedPictures")
     private List<User> usersWhoLikes;
 
+
     public Picture(String title, String description, String category, Date date, Album album) {
         this.title = title;
         this.description = description;
@@ -81,4 +82,9 @@ public class Picture {
         this.album = album;
         this.path = path;
     }
+
+    public Date getDate() {
+        return shootDate;
+    }
+
 }
