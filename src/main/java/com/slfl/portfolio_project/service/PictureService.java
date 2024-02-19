@@ -23,14 +23,12 @@ public class PictureService {
 
     private final PictureRepository pictureRepository;
     private final AlbumRepository albumRepository;
-    private final ImageFileService imageFileService;
     private final ResponseFactory responseFactory;
 
     @Autowired
     PictureService(PictureRepository pictureRepository, AlbumRepository albumRepository, ImageFileService imageFileService) {
         this.pictureRepository = pictureRepository;
         this.albumRepository = albumRepository;
-        this.imageFileService = imageFileService;
         this.responseFactory = new PictureResponseFactory();
     }
 
@@ -117,8 +115,7 @@ public class PictureService {
             if (foundAlbum.isEmpty()) {
                 return this.responseFactory.createCustomError("404", "Album non trovato in loadFileImageByAlbum");
             }
-            Stream<Path> images = imageFileService.loadImagesOfAlbum(foundAlbum.get());
-            return new LoadedImageResponse("200", "Immagini scaricate con successo.", images);
+            return new LoadedImageResponse("200", "Immagini scaricate con successo.", null);
         } catch (Exception e) {
             return this.responseFactory.createCustomError("404", e.getMessage());
         }
