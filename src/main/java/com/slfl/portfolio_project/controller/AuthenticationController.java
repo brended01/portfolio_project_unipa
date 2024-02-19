@@ -3,6 +3,7 @@ package com.slfl.portfolio_project.controller;
 import com.slfl.portfolio_project.model.RegistrationDTO;
 import com.slfl.portfolio_project.model.ResponseStatus;
 import com.slfl.portfolio_project.service.AuthenticationService;
+import com.slfl.portfolio_project.service.AuthenticationServiceWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class  AuthenticationController {
 
     @Autowired
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceWrapper authenticationService;
 
     @PostMapping("/register")
     public ResponseStatus registerUser(@RequestBody RegistrationDTO body) {

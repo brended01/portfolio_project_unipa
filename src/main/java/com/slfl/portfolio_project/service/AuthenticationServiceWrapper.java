@@ -21,7 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthenticationServiceWrapper {
 
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
+
+    public AuthenticationServiceWrapper(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
     public ResponseStatus registerUser(String username, String email, String password, boolean isPhotographer) {
         return authenticationService.registerUser(username,email,password,isPhotographer);
     }
@@ -29,7 +34,10 @@ public class AuthenticationServiceWrapper {
     public ResponseStatus loginUser(String username, String password) {
         ResponseStatus responseStatus = authenticationService.loginUser(username,password);
         if(responseStatus.getCode() == "200"){
-            log.info("L'utente " + username + "ha effettuato correttamente l'accesso");
+            log.info("L'utente " + username + " ha effettuato correttamente l'accesso");
+        }else{
+            log.info("L'utente " + username + " ha avuto problemi ad accedere!");
+
         }
         return responseStatus;
     }
