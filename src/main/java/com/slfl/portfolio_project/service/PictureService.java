@@ -2,15 +2,19 @@ package com.slfl.portfolio_project.service;
 
 import com.slfl.portfolio_project.model.Album;
 import com.slfl.portfolio_project.model.Picture;
+import com.slfl.portfolio_project.model.backup_picture.PictureCareTaker;
+import com.slfl.portfolio_project.model.backup_picture.PictureMemento;
 import com.slfl.portfolio_project.model.requests.PictureCreateDTO;
 import com.slfl.portfolio_project.model.response_factory.CustomResponse;
 import com.slfl.portfolio_project.model.response_factory.ResponseFactory;
 import com.slfl.portfolio_project.model.response_factory.image.LoadedImageResponse;
 import com.slfl.portfolio_project.model.response_factory.picture.PictureResponseFactory;
 import com.slfl.portfolio_project.repository.AlbumRepository;
+import com.slfl.portfolio_project.repository.PictureMementoRepository;
 import com.slfl.portfolio_project.repository.PictureRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -22,13 +26,15 @@ import java.util.stream.Stream;
 public class PictureService {
 
     private final PictureRepository pictureRepository;
+    private final PictureMementoRepository pictureMementoRepository;
     private final AlbumRepository albumRepository;
     private final ImageFileService imageFileService;
     private final ResponseFactory responseFactory;
 
     @Autowired
-    PictureService(PictureRepository pictureRepository, AlbumRepository albumRepository, ImageFileService imageFileService) {
+    PictureService(PictureRepository pictureRepository, PictureMementoRepository pictureMementoRepository, AlbumRepository albumRepository, ImageFileService imageFileService) {
         this.pictureRepository = pictureRepository;
+        this.pictureMementoRepository = pictureMementoRepository;
         this.albumRepository = albumRepository;
         this.imageFileService = imageFileService;
         this.responseFactory = new PictureResponseFactory();
@@ -77,12 +83,14 @@ public class PictureService {
     // Update picture info
     public CustomResponse updatePicture(Integer pictureId, PictureCreateDTO pictureCreateDTO) {
         try {
-            Optional<Picture> specifiedPicture = pictureRepository.findById(pictureId);
-            if (specifiedPicture.isEmpty()) {
+            Picture specifiedPicture = pictureRepository.findById(pictureId).get();
+            PictureCareTaker pictureCareTaker = new PictureCareTaker();
+            if (specifiedPicture.getPictureId() == null) {
                 return this.responseFactory.createCustomError("404", "Immagine non trovata.");
             }
-
-            pictureRepository.save(new Picture(pictureId, pictureCreateDTO.getTitle(), pictureCreateDTO.getDescription(), pictureCreateDTO.getCategory(), pictureCreateDTO.getDate(), specifiedPicture.get().getAlbum()));
+            //salvataggio backup
+            pictureCareTaker.save(specifiedPicture);
+            pictureRepository.save(new Picture(pictureId, pictureCreateDTO.getTitle(), pictureCreateDTO.getDescription(), pictureCreateDTO.getCategory(), pictureCreateDTO.getDate(), specifiedPicture.getAlbum()));
             return this.responseFactory.updateSuccessfullyResponse();
         } catch (Exception e) {
             return this.responseFactory.createCustomError("404", e.getMessage());
@@ -119,6 +127,21 @@ public class PictureService {
             }
             Stream<Path> images = imageFileService.loadImagesOfAlbum(foundAlbum.get());
             return new LoadedImageResponse("200", "Immagini scaricate con successo.", images);
+        } catch (Exception e) {
+            return this.responseFactory.createCustomError("404", e.getMessage());
+        }
+    }
+
+    public CustomResponse restorePicture(Integer pictureId) {
+        try {
+            Picture specifiedPicture = pictureRepository.findById(pictureId).get();
+            if (specifiedPicture.getPictureId() == null) {
+                return this.responseFactory.createCustomError("404", "Immagine non trovata.");
+            }
+            PictureCareTaker pictureCareTaker = new PictureCareTaker();
+            Picture restoredPicture = pictureCareTaker.undo(specifiedPicture);
+            pictureRepository.save(new Picture(pictureId, restoredPicture.getTitle(), restoredPicture.getDescription(), restoredPicture.getCategory(), restoredPicture.getShootDate(), restoredPicture.getAlbum(), restoredPicture.getPath()));
+            return this.responseFactory.updateSuccessfullyResponse();
         } catch (Exception e) {
             return this.responseFactory.createCustomError("404", e.getMessage());
         }

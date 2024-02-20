@@ -1,12 +1,12 @@
 package com.slfl.portfolio_project.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.slfl.portfolio_project.model.backup_picture.PictureMemento;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
 import java.util.Date;
 import java.util.List;
 
@@ -80,5 +80,20 @@ public class Picture {
         this.shootDate = date;
         this.album = album;
         this.path = path;
+    }
+
+    public PictureMemento saveToMemento() {
+        return new PictureMemento(pictureId,title,description,category,shootDate,album,path);
+    }
+
+    // Metodo per ripristinare lo stato da un Memento
+    public void restoreFromMemento(PictureMemento memento) {
+        this.pictureId = memento.getSavedPictureId();
+        this.title = memento.getSavedTitle();
+        this.description = memento.getSavedDescription();
+        this.category = memento.getSavedCategory();
+        this.shootDate = memento.getSavedShootDate();
+        this.album = memento.getSavedAlbum();
+        this.path = memento.getSavedPath();
     }
 }

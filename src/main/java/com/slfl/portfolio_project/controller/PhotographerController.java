@@ -83,6 +83,10 @@ public class PhotographerController {
     public CustomResponse updatePicture(@PathVariable Integer pictureId, @RequestBody PictureCreateDTO pictureCreateDTO) {
         return pictureService.updatePicture(pictureId, pictureCreateDTO);
     }
+    @PostMapping("/picture/restore/{pictureId}")
+    public CustomResponse restorePicture(@PathVariable Integer pictureId) {
+        return pictureService.restorePicture(pictureId);
+    }
 
     @PostMapping("/picture/delete/{pictureId}")
     public CustomResponse deletePicture(@PathVariable Integer pictureId) {
