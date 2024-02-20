@@ -50,8 +50,8 @@ public class PhotographerController {
         return albumService.updateAlbum(albumId, albumCreateDTO, token);
     }
 
-    @PostMapping("/picture/create/{albumId}")
-    public CustomResponse createPicture(@PathVariable Integer albumId, @RequestBody PictureCreateDTO pictureCreateDTO) {
+        @PostMapping("/picture/create/{albumId}")
+        public CustomResponse createPicture(@PathVariable Integer albumId, @RequestBody PictureCreateDTO pictureCreateDTO) {
         return pictureService.createPicture(pictureCreateDTO, albumId);
     }
 

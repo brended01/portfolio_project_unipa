@@ -5,18 +5,16 @@ import com.slfl.portfolio_project.repository.PictureMementoRepository;
 
 public class PictureCareTaker {
     private PictureMemento postMemento;
-    private PictureMementoRepository pictureMementoRepository;
 
     // Metodo per salvare lo stato del post
-    public void save(Picture post) {
-
+    public void save(Picture post, PictureMementoRepository pictureMementoRepository) {
         this.postMemento = post.saveToMemento();
-        postMemento = pictureMementoRepository.save(postMemento);
+        pictureMementoRepository.save(postMemento);
 
     }
 
     // Metodo per ripristinare lo stato del post all'ultimo salvataggio
-    public Picture undo(Picture post) {
+    public Picture undo(Picture post, PictureMementoRepository pictureMementoRepository) {
         postMemento = pictureMementoRepository.findById(post.getPictureId()).get();
         if (postMemento.getSavedPictureId() != null) {
             post.restoreFromMemento(postMemento);
